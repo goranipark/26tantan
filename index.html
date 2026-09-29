@@ -122,6 +122,8 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
 .blk p{font-size:14.5px}
 .flow{display:flex;gap:7px;flex-wrap:wrap;align-items:center;font-size:13.5px}
 .flow span{background:var(--tint);padding:5px 11px;border-radius:5px;color:var(--navy);font-weight:600}
+.draftband{margin-bottom:18px;padding:10px 14px;border-radius:7px;background:var(--amber-l);
+  border:1px dashed var(--amber);color:#8A5710;font-size:13px;font-weight:700}
 .closing{margin-top:26px;padding:16px;background:var(--navy-d);border-radius:8px;
   color:#fff;font-size:14.5px;text-align:center;font-weight:600}
 
@@ -143,6 +145,8 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
 .toolbar .btn{font-size:12.5px;padding:7px 14px}
 
 @media print{
+  body.pd .wrap > *:not(#draftWrap){display:none!important}
+  body.pd #draftWrap{display:block!important}
   header,.rail,.backward,.toolbar,.btnrow,.step:not(#step6),.stephead,.tiernote,.quest,.selfcheck{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .sheet table{page-break-inside:avoid}
@@ -171,9 +175,9 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
 
   <div class="backward">
     <span class="lab">백워드 설계</span>
-    <em id="bw1">① 학습 결과</em><i>&rarr;</i>
-    <em id="bw2">② 평가 증거</em><i>&rarr;</i>
-    <em id="bw3">③ 학습 경험</em>
+    <em id="bw1">① 학생에게 남길 것</em><i>&rarr;</i>
+    <em id="bw2">② 배웠다는 흔적</em><i>&rarr;</i>
+    <em id="bw3">③ 필요한 연습</em>
     <span style="margin-left:auto;color:var(--muted)">활동과 도구는 마지막에 정합니다</span>
   </div>
 
@@ -194,6 +198,7 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
     <button class="btn ghost" onclick="exportJSON()">내보내기</button>
     <button class="btn ghost" onclick="document.getElementById('imp').click()">불러오기</button>
     <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button class="btn ghost" onclick="printDraft()">지금까지 PDF</button>
     <button class="btn ghost" onclick="resetAll()">처음부터</button>
     <span id="saveStat" style="margin-left:auto;align-self:center;font-size:12px;color:var(--muted)"></span>
   </div>
@@ -220,9 +225,9 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
   <section class="step locked" id="step2">
     <div class="stephead"><div class="stepno">2</div>
       <div class="steptitle">학습목표</div><span class="tier base">기초 확장</span>
-      <div class="stepnote">백워드 &#9312; 학습 결과</div></div>
+      <div class="stepnote">&#9312; 학생에게 남길 것</div></div>
     <div class="body">
-      <div class="quest"><b>탐구질문&#9313;</b><span>활동부터 설계하는 것과 학생에게 남길 학습 결과부터 설계하는 것은 어떤 차이가 있을까?</span></div>
+      <div class="quest"><b>탐구질문&#9313;</b><span>활동보다 &lsquo;학생에게 남길 것&rsquo;을 먼저 정하면 무엇이 달라질까?</span></div>
 
       <div class="aibox">
         <h4>AI에게 초안 받아오기 &middot; 1회차</h4>
@@ -252,7 +257,7 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
   <section class="step locked" id="step3">
     <div class="stephead"><div class="stepno">3</div>
       <div class="steptitle">수행과제와 평가 증거</div><span class="tier adv">심화 신규</span>
-      <div class="stepnote">백워드 &#9313; 평가 증거</div></div>
+      <div class="stepnote">&#9313; 배웠다는 흔적</div></div>
     <div class="body">
       <div class="quest"><b>탐구질문&#9314;</b><span>내가 가르치는 단원을 학생이 해결해야 할 &lsquo;프로젝트&rsquo;로 바꾼다면?</span></div>
 
@@ -270,15 +275,15 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
         <div class="hint">교사만 보는 결과물은 수행과제가 아니라 과제 제출입니다.</div>
       </div>
 
-      <div class="aibox" style="margin-top:20px">
-        <h4>수정 실습 &middot; 교사의 관점으로 다시 쓰기</h4>
-        <p>초안을 그대로 쓰지 않습니다. 아래 관점으로 AI에게 수정을 요청해보세요. (선택) &mdash; 받은 답은 위 &lsquo;최종 수행과제&rsquo; 칸에 직접 붙여넣으세요.</p>
+      <details class="aibox" style="margin-top:20px">
+        <summary style="cursor:pointer;font-size:13.5px;font-weight:700;color:var(--navy)">수정 실습 &middot; 교사의 관점으로 다시 쓰기 <span style="font-weight:600;color:var(--muted)">(선택 &middot; 시간이 남으면)</span></summary>
+        <p style="margin-top:10px">AI를 한 번 더 쓰는 활동입니다. 오늘은 AI 1회가 기본이니, 시간이 남을 때만 해보세요. 받은 답은 위 &lsquo;최종 수행과제&rsquo; 칸에 직접 붙여넣습니다.</p>
         <div class="btnrow" style="margin-top:0">
           <button class="btn ghost sm" onclick="revise('real')">더 실제적인 과제로</button>
           <button class="btn ghost sm" onclick="revise('level')">학생 수준에 맞게</button>
           <button class="btn ghost sm" onclick="revise('cut')">실행 가능하게 줄이기</button>
         </div>
-      </div>
+      </details>
 
       <div style="margin-top:20px">
         <label>무엇을 보면 도달했다고 할 수 있을까요? <span class="req">2개 이상</span></label>
@@ -288,6 +293,7 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
 
       <div class="btnrow"><button class="btn" onclick="finishStep3()">다음</button>
         <button class="btn ghost" onclick="exportJSON()">중간 저장 (JSON)</button>
+        <button class="btn ghost" onclick="printDraft()">지금까지 PDF</button>
         <span style="font-size:12px;color:var(--muted)">기본 목표는 여기까지입니다. 저장해두고 강의 후 이어서 작성해도 됩니다.</span></div>
     </div>
   </section>
@@ -295,7 +301,7 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
   <section class="step locked" id="step4">
     <div class="stephead"><div class="stepno">4</div>
       <div class="steptitle">차시 활동과 AI 배치</div><span class="tier adv">일부 신규</span>
-      <div class="stepnote">백워드 &#9314; 학습 경험</div></div>
+      <div class="stepnote">&#9314; 필요한 연습</div></div>
     <div class="body">
       <div class="note" id="phaseAnote">
         <strong>먼저 학생 활동만 정합니다.</strong> AI 활용 열은 아직 열리지 않습니다.
@@ -390,6 +396,7 @@ td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-a
       </div>
     </div>
   </section>
+  <div id="draftWrap" style="display:none"><div class="sheet" id="draftSheet"></div></div>
 </div>
 
 <script>
@@ -671,28 +678,57 @@ function finishStep5(){
 }
 function v(id){return document.getElementById(id).value.trim();}
 
-function buildSheet(){
-  var flow=S.lessons.map(function(l){
-    return '<span>'+l.activity.split(/[,.\n]/)[0].slice(0,14)+'</span>';
-  }).join('<span style="color:#A6B0D0;background:none;padding:0 2px">&rarr;</span>');
-  var aiTxt=S.lessons.map(function(l){return l.ai;}).filter(Boolean).join(" / ")||"—";
-  document.getElementById("sheet").innerHTML=
-    '<h2>'+S.subject+' 프로젝트 설계도</h2>'+
-    '<div class="meta">'+S.level+' '+h(S.grade)+' &middot; '+h(S.unit)+' &middot; 총 '+S.lessonCount+'차시</div>'+
-    '<div class="blk"><h3>학습목표</h3><p>'+h(S.goal)+'</p></div>'+
-    '<div class="blk"><h3>핵심질문</h3><p>'+h(S.question)+'</p></div>'+
-    '<div class="blk"><h3>최종 수행과제</h3><p>'+h(S.task)+'<br>'+
-      '<span style="font-size:13px;color:var(--muted)">이 결과물을 보는 사람: '+h(S.audience)+'</span></p></div>'+
-    '<div class="blk"><h3>평가 증거</h3><p style="font-size:13.5px">'+S.evidence.join(" / ")+'</p></div>'+
-    '<div class="blk"><h3>프로젝트 흐름</h3><div class="flow">'+flow+'</div></div>'+
-    '<div class="blk"><h3>AI 활용</h3><p style="font-size:13.5px">'+aiTxt+'</p></div>'+
-    '<div class="blk"><h3>학생이 직접 판단하는 것</h3>'+
-      '<p style="font-size:13.5px;color:var(--navy);font-weight:600">'+
-      S.lessons.map(function(l){return l.judge;}).join(" / ")+'</p></div>'+
-    '<div class="blk"><h3>과정중심평가 루브릭</h3>'+rubricTable()+'</div>'+
-    '<div id="fixline"></div>'+
-    '<div class="closing">여러분이 방금 만든 것은 수업안이 아니라 프로젝트의 설계도입니다.</div>';
+function cutWord(t,max){
+  t=String(t||"").trim(); if(t.length<=max) return t;
+  var c=t.slice(0,max), sp=c.lastIndexOf(" ");
+  return (sp>max*0.5? c.slice(0,sp) : c).replace(/[,·\s]+$/,"")+"…";
 }
+function dash(t){ return t&&String(t).trim()? h(t) : '<span style="color:#A6B0D0">— 작성 전</span>'; }
+function buildSheet(){ document.getElementById("sheet").innerHTML=sheetHTML(false); }
+function sheetHTML(draft){
+  var ls=(S.lessons||[]).filter(function(l){return l.activity&&l.activity.trim();});
+  var flow=ls.length? ls.map(function(l){
+    return '<span>'+h(cutWord(l.activity.split(/[,.\n]/)[0],18))+'</span>';
+  }).join('<span style="color:#A6B0D0;background:none;padding:0 2px">&rarr;</span>') : '';
+  var aiTxt=h((S.lessons||[]).map(function(l){return l.ai;}).filter(Boolean).join(" / "));
+  var judge=h((S.lessons||[]).map(function(l){return l.judge;}).filter(Boolean).join(" / "));
+  var band= draft ? '<div class="draftband">작성 중인 설계도 &middot; STEP '+progress()+'까지 작성 &mdash; JSON을 불러와 이어서 완성하세요</div>' : '';
+  return band+
+    '<h2>'+h(S.subject)+' 프로젝트 설계도</h2>'+
+    '<div class="meta">'+S.level+' '+h(S.grade)+' &middot; '+h(S.unit)+' &middot; 총 '+S.lessonCount+'차시</div>'+
+    '<div class="blk"><h3>학습목표 &middot; 학생에게 남길 것</h3><p>'+dash(S.goal)+'</p></div>'+
+    '<div class="blk"><h3>핵심질문</h3><p>'+dash(S.question)+'</p></div>'+
+    '<div class="blk"><h3>최종 수행과제</h3><p>'+dash(S.task)+'<br>'+
+      '<span style="font-size:13px;color:var(--muted)">이 결과물을 보는 사람: '+dash(S.audience)+'</span></p></div>'+
+    '<div class="blk"><h3>평가 증거 &middot; 배웠다는 흔적</h3><p style="font-size:13.5px">'+dash((S.evidence||[]).join(" / "))+'</p></div>'+
+    '<div class="blk"><h3>프로젝트 흐름 &middot; 필요한 연습</h3>'+(flow? '<div class="flow">'+flow+'</div>' : '<p>'+dash("")+'</p>')+'</div>'+
+    '<div class="blk"><h3>AI 활용</h3><p style="font-size:13.5px">'+(aiTxt||dash(""))+'</p></div>'+
+    '<div class="blk"><h3>학생이 직접 판단하는 것</h3>'+
+      '<p style="font-size:13.5px;color:var(--navy);font-weight:600">'+(judge||dash(""))+'</p></div>'+
+    '<div class="blk"><h3>과정중심평가 루브릭</h3>'+((S.rubricFinal||[]).length? rubricTable() : '<p>'+dash("")+'</p>')+'</div>'+
+    (draft? '' : '<div id="fixline"></div>')+
+    '<div class="closing">'+(draft? '작성 중 &mdash; 저장한 JSON을 「불러오기」 하면 이어서 쓸 수 있습니다.' : '여러분이 방금 만든 것은 수업안이 아니라 프로젝트의 설계도입니다.')+'</div>';
+}
+function progress(){
+  var p=1;
+  if((S.goal||"").trim()) p=2;
+  if(p===2 && (S.task||"").trim() && (S.audience||"").trim() && (S.evidence||[]).length>=2) p=3;
+  if(p===3 && (S.lessons||[]).length && S.lessons.every(function(l){return (l.activity||"").trim()&&(l.judge||"").trim();})) p=4;
+  if(p===4 && (S.rubricFinal||[]).length>=3) p=5;
+  return p;
+}
+function printDraft(){
+  syncForm();
+  if(reached<3 || !(S.goal||"").trim()){
+    alert("STEP 2(학습목표)까지 작성한 뒤에 PDF로 저장할 수 있습니다."); return;
+  }
+  if(reached>=6 && S.checkPick && (S.fix||"").trim()){ printSheet(); return; }
+  document.getElementById("draftSheet").innerHTML=sheetHTML(true);
+  autosave();
+  document.body.classList.add("pd");
+  setTimeout(function(){ window.print(); },50);
+}
+window.addEventListener("afterprint",function(){ document.body.classList.remove("pd"); });
 
 function rubricTable(){
   var rows=(S.rubricFinal||[]).map(function(r){
@@ -729,20 +765,20 @@ function resetAll(){if(confirm("입력한 내용과 이 컴퓨터의 자동 저�
   try{localStorage.removeItem(AKEY);}catch(e){} S.subject="";S.goal="";S.task="";S.unit="";location.reload();}}
 
 /* ===== 준비 응답 ===== */
-function unitName(){
-  var u=(v("f_unit")||S.unit||"").split("/")[0].replace(/\[[^\]]*\]/g,"").trim();
-  return u? u.slice(0,24) : "이 단원";
+function unitRaw(){
+  var u=(v("f_unit")||S.unit||"").split("/")[0].replace(/\[[^\]]*\]/g,"").replace(/\([^)]*\)/g,"").replace(/^\s*\d\s*학기\s*/,"").replace(/^\s*\d+\s*단원\s*/,"").trim();
+  return (u && u.length<=20) ? u : "";
 }
 function fillReady1(){
-  var u=unitName();
+  var u=unitRaw(), U=u? "「"+u+"」 단원" : "이 단원";
   S.cand={
-    goals:["「"+u+"」에서 탐구한 내용을 근거로 다른 사람에게 설명할 수 있다.",
-           "「"+u+"」와 관련된 문제를 찾아 자료를 근거로 해결 방안을 제안할 수 있다.",
-           "「"+u+"」에 대해 조사한 내용을 비교·정리하고, 피드백을 받아 자신의 생각을 고쳐 나갈 수 있다."],
-    questions:["「"+u+"」에서 배운 것은 우리 생활의 어디에서 쓰일까?",
+    goals:[U+"에서 탐구한 내용을 근거로 다른 사람에게 설명할 수 있다.",
+           U+"과 관련된 문제를 찾아 자료를 근거로 해결 방안을 제안할 수 있다.",
+           U+"에서 조사한 내용을 비교·정리하고, 피드백을 받아 자신의 생각을 고쳐 나갈 수 있다."],
+    questions:[U+"에서 배운 것은 우리 생활의 어디에서 쓰일까?",
                "다른 사람이 이해하려면 무엇을, 어떻게 알려주어야 할까?",
                "같은 문제를 두고 사람들의 생각은 왜 다를까?"],
-    tasks:["우리 가족에게 알려줄 「"+u+"」 안내서 만들기",
+    tasks:["우리 가족에게 알려줄 "+(u? "「"+u+"」 " : "")+"안내서 만들기",
            "학교 게시판에 붙여 전교생이 볼 설명 자료 만들기",
            "지역 기관(행정복지센터·도서관 등)에 보낼 제안서 쓰기"]
   };
@@ -823,6 +859,7 @@ function loadSample(key){
     var d=JSON.parse(JSON.stringify(SAMPLES[key].d));
     d.cand={goals:[],questions:[],tasks:[]}; d.rubricFinal=[]; d.checkPick=""; d.fix="";
     for(var k in d) S[k]=d[k];
+    reached=1; done=0;
     setPhaseB(); fillForm(); autosave();
     alert(SAMPLES[key].label+" 예시를 불러왔습니다. STEP 1부터 확인하며 넘어가세요.");
     return;
@@ -854,6 +891,7 @@ function loadSampleSci(){
   };
   d.cand={goals:[],questions:[],tasks:[]}; d.rubricFinal=[]; d.checkPick=""; d.fix="";
   for(var k in d) S[k]=d[k];
+  reached=1; done=0;
   setPhaseB();
   fillForm(); autosave();
   alert("초4 과학 「밤하늘 관찰」 예시를 불러왔습니다. STEP 1부터 확인하며 넘어가세요.");
