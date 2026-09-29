@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로젝트 설계도</title>
+<style>
+:root{
+  --navy:#1E2761; --navy-d:#141B46; --navy-l:#3A4580;
+  --amber:#D98A1F; --amber-l:#FBF3E4;
+  --ice:#CADCFC; --tint:#EEF2FB; --card:#F5F7FC;
+  --line:#DCE3F2; --txt:#1F2437; --muted:#6B7280;
+  --ok:#2E7D5B; --ok-l:#E8F4EE; --lock:#F0F1F5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Pretendard","맑은 고딕","Malgun Gothic",-apple-system,sans-serif;
+  background:#fff;color:var(--txt);line-height:1.6;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+header{background:var(--navy-d);color:#fff;padding:26px 0 22px}
+header .wrap{padding-bottom:0}
+.brandrow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font-size:26px;font-weight:800;letter-spacing:-.4px}
+.brandsub{font-size:13px;color:var(--ice)}
+.tagline{margin-top:8px;font-size:13.5px;color:#9BA8D4}
+
+.rail{display:flex;gap:6px;margin:22px 0 18px;flex-wrap:wrap}
+.railitem{flex:1;min-width:118px;padding:9px 10px;border-radius:7px;background:var(--card);
+  border:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
+.railitem.active{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+.railitem.done{background:var(--ok-l);border-color:#BFDDCE;color:var(--ok);font-weight:600}
+.railitem b{display:block;font-size:11px;opacity:.75;font-weight:600;margin-bottom:1px}
+
+.backward{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  padding:11px 15px;background:var(--tint);border-radius:8px;margin-bottom:22px;font-size:12.5px}
+.backward .lab{font-weight:800;color:var(--navy);margin-right:4px}
+.backward em{font-style:normal;background:#fff;border:1px solid var(--line);
+  padding:4px 10px;border-radius:5px;color:var(--muted)}
+.backward em.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+.backward i{color:#A6B0D0;font-style:normal}
+
+.step{border:1px solid var(--line);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.step.locked{opacity:.5} .step.locked .body{display:none}
+.stephead{display:flex;align-items:center;gap:12px;padding:15px 20px;
+  background:var(--card);border-bottom:1px solid var(--line)}
+.step.open .stephead{background:var(--tint)}
+.stepno{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;
+  display:grid;place-items:center;font-size:12.5px;font-weight:700;flex-shrink:0}
+.step.locked .stepno{background:#A6B0D0}
+.step.finished .stepno{background:var(--ok)}
+.steptitle{font-size:16.5px;font-weight:700;color:var(--navy)}
+.stepnote{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right}
+.tier{font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:11px;
+  color:#fff;flex-shrink:0;letter-spacing:.2px}
+.tier.base{background:#C7CDDE} .tier.adv{background:var(--amber)}
+.step.locked .tier{opacity:.6}
+.body{padding:22px 20px}
+
+.quest{background:var(--tint);border-radius:8px;padding:13px 16px;margin-bottom:20px;font-size:13.5px}
+.quest b{color:var(--amber);font-weight:800;margin-right:7px}
+.quest span{color:var(--navy);font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px}
+label{display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:5px}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:6px;
+  font-family:inherit;font-size:14px;color:var(--txt);background:#fff}
+textarea{resize:vertical;min-height:62px;line-height:1.55}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--navy-l);outline-offset:-1px}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.req{color:var(--amber);font-weight:800}
+
+.btn{padding:9px 17px;border:none;border-radius:6px;font-family:inherit;font-size:13.5px;
+  font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover:not(:disabled){background:var(--navy-l)}
+.btn:disabled{background:#B9C0D8;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--card)}
+.btn.amber{background:var(--amber)} .btn.amber:hover{background:#C07715}
+.btn.sm{padding:5px 11px;font-size:12px;font-weight:600}
+.btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px;align-items:center}
+
+.aibox{background:var(--tint);border-radius:9px;padding:17px;margin-bottom:20px}
+.aibox h4{font-size:13.5px;color:var(--navy);margin-bottom:5px}
+.aibox p{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.pastearea{margin-top:13px;display:none} .pastearea.show{display:block}
+.pastearea textarea{min-height:90px;font-size:12.5px;background:#fff}
+
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{padding:12px 14px;border:1px solid var(--line);border-radius:7px;cursor:pointer;background:#fff;font-size:14px}
+.opt:hover{border-color:var(--navy-l);background:var(--card)}
+.opt.sel{border-color:var(--navy);background:var(--tint);border-width:2px;padding:11px 13px}
+.opt .tag{font-size:11px;font-weight:700;color:var(--amber);display:block;margin-bottom:3px}
+
+table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13.5px}
+th{background:var(--navy);color:#fff;padding:10px 11px;text-align:left;font-size:12.5px;font-weight:700}
+th.key{background:var(--amber)}
+th.lockedcol{background:#A6B0D0}
+td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:var(--card)}
+td.no{text-align:center;font-weight:700;color:var(--navy);width:44px}
+td textarea{border:1px dashed #C3CCE4;background:#FFFDF7;font-size:13px;padding:6px 8px;min-height:52px}
+td.lockcell{background:var(--lock)!important;color:#9AA0B4;font-size:12px;text-align:center;
+  vertical-align:middle;font-style:italic}
+
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}
+.chk{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid var(--line);
+  border-radius:7px;cursor:pointer;font-size:13.5px;background:#fff}
+.chk:hover{background:var(--card)}
+.chk.on{border-color:var(--navy);background:var(--tint);font-weight:600}
+.chk input{width:auto;margin:0;accent-color:var(--navy)}
+
+.note{padding:12px 15px;border-radius:7px;font-size:13px;margin:14px 0;
+  background:var(--amber-l);color:#8A5710;border-left:3px solid var(--amber)}
+.note.ok{background:var(--ok-l);color:var(--ok);border-color:var(--ok)}
+.note strong{font-weight:800}
+
+.sheet{border:2px solid var(--navy);border-radius:10px;padding:28px;background:#fff}
+.sheet h2{font-size:22px;color:var(--navy);margin-bottom:4px}
+.sheet .meta{font-size:13px;color:var(--muted);margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.blk{margin-bottom:19px}
+.blk h3{font-size:12px;font-weight:800;color:var(--amber);letter-spacing:.4px;margin-bottom:5px}
+.blk p{font-size:14.5px}
+.flow{display:flex;gap:7px;flex-wrap:wrap;align-items:center;font-size:13.5px}
+.flow span{background:var(--tint);padding:5px 11px;border-radius:5px;color:var(--navy);font-weight:600}
+.closing{margin-top:26px;padding:16px;background:var(--navy-d);border-radius:8px;
+  color:#fff;font-size:14.5px;text-align:center;font-weight:600}
+
+.selfcheck{margin-top:26px;border:1px solid var(--line);border-radius:9px;padding:20px;background:var(--card)}
+.selfcheck h3{font-size:15px;color:var(--navy);margin-bottom:4px}
+.selfcheck>p{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.scrow{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;background:#fff;
+  border:1px solid var(--line);border-radius:7px;margin-bottom:8px;cursor:pointer;font-size:13.5px}
+.scrow.on{border-color:var(--amber);border-width:2px;padding:10px 12px;background:var(--amber-l)}
+.scrow b{color:var(--navy);font-weight:800;flex-shrink:0;width:34px}
+.fixbox{margin-top:12px;display:none} .fixbox.show{display:block}
+
+.tiernote{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.tn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;
+  font-size:12.5px;color:var(--muted);border:1px solid var(--line)}
+.tn.base{background:var(--card)} .tn.adv{background:#FDFAF3;border-color:#EBD9B8;color:#8A5710}
+@media(max-width:760px){.tiernote{grid-template-columns:1fr}}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}
+.toolbar .btn{font-size:12.5px;padding:7px 14px}
+
+@media print{
+  header,.rail,.backward,.toolbar,.btnrow,.step:not(#step6),.stephead,.tiernote,.quest,.selfcheck{display:none!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sheet table{page-break-inside:avoid}
+  .sheet{padding:16px} .blk{margin-bottom:11px} .closing{margin-top:12px;padding:10px;break-before:avoid}
+  .step{border:none} .body{padding:0} .sheet{border:1px solid #999} body{font-size:12px}
+}
+@media(max-width:640px){
+  .rail,.backward{display:none} h1{font-size:21px} .body{padding:17px 14px} .stepnote{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandrow">
+      <h1>프로젝트 설계도</h1>
+      <span class="brandsub">융합형 AI 프로젝트 + 과정중심평가</span>
+    </div>
+    <div class="tagline">여러분이 만드는 것은 수업안이 아니라, 프로젝트의 설계도입니다.</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="rail" id="rail"></div>
+
+  <div class="backward">
+    <span class="lab">백워드 설계</span>
+    <em id="bw1">① 학습 결과</em><i>&rarr;</i>
+    <em id="bw2">② 평가 증거</em><i>&rarr;</i>
+    <em id="bw3">③ 학습 경험</em>
+    <span style="margin-left:auto;color:var(--muted)">활동과 도구는 마지막에 정합니다</span>
+  </div>
+
+  <div class="tiernote">
+    <div class="tn base"><span class="tier base">기초 확장</span>
+      기초 5차시에서 채웠던 항목을 프로젝트 단위로 넓힙니다</div>
+    <div class="tn adv"><span class="tier adv">심화 신규</span>
+      오늘 처음 채우는 항목입니다 &mdash; 수행과제 &middot; 평가 증거 &middot; 학생 판단 &middot; 루브릭</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn ghost" onclick="loadSample()">예시로 채우기</button>
+    <button class="btn ghost" onclick="exportJSON()">내보내기</button>
+    <button class="btn ghost" onclick="document.getElementById('imp').click()">불러오기</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button class="btn ghost" onclick="resetAll()">처음부터</button>
+  </div>
+
+  <section class="step open" id="step1">
+    <div class="stephead"><div class="stepno">1</div>
+      <div class="steptitle">내 수업 정보</div><span class="tier base">기초 확장</span>
+      <div class="stepnote">기초는 1개 차시 &middot; 오늘은 3~6차시</div></div>
+    <div class="body">
+      <div class="grid">
+        <div><label>학교급</label>
+          <select id="f_level"><option value="">선택</option><option>초등학교</option><option>중학교</option><option>고등학교</option></select></div>
+        <div><label>학년</label><input id="f_grade" placeholder="예) 4학년"></div>
+        <div><label>교과</label><input id="f_subject" placeholder="예) 과학"></div>
+        <div><label>프로젝트 차시 <span style="color:var(--amber)">기초는 1차시</span></label>
+          <select id="f_lessons"><option>3차시</option><option selected>4차시</option><option>5차시</option><option>6차시</option></select></div>
+      </div>
+      <div style="margin-top:13px"><label>단원 또는 성취기준</label>
+        <textarea id="f_unit" placeholder="예) 2학기 1단원 밤하늘 관찰 / [4과13-01] 달의 모양과 표면, 달의 위상 변화를 관찰하여 밤하늘 관찰에 흥미를 가질 수 있다."></textarea></div>
+      <div class="btnrow"><button class="btn" onclick="finishStep1()">프로젝트 설계 시작</button></div>
+    </div>
+  </section>
+
+  <section class="step locked" id="step2">
+    <div class="stephead"><div class="stepno">2</div>
+      <div class="steptitle">학습목표</div><span class="tier base">기초 확장</span>
+      <div class="stepnote">백워드 &#9312; 학습 결과</div></div>
+    <div class="body">
+      <div class="quest"><b>탐구질문&#9313;</b><span>활동부터 설계하는 것과 학생에게 남길 학습 결과부터 설계하는 것은 어떤 차이가 있을까?</span></div>
+
+      <div class="aibox">
+        <h4>AI에게 초안 받아오기 &middot; 1회차</h4>
+        <p>학습목표 &middot; 핵심질문 &middot; 수행과제를 한 번에 받아옵니다. STEP 3까지 추가 요청 없이 진행합니다.</p>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn amber" onclick="ask(1,'gemini')">Gemini로 물어보기</button>
+          <button class="btn amber" onclick="ask(1,'chatgpt')">ChatGPT로 물어보기</button>
+          <button class="btn ghost sm" onclick="copyPrompt(1)">프롬프트만 복사</button>
+          <button class="btn ghost sm" onclick="togglePaste(1)">답변 붙여넣기</button>
+        </div>
+        <div class="pastearea" id="paste1">
+          <textarea id="paste1_t" placeholder="AI 답변을 통째로 붙여넣으세요."></textarea>
+          <div class="btnrow" style="margin-top:9px"><button class="btn sm" onclick="parse1()">불러오기</button></div>
+        </div>
+      </div>
+
+      <label>이 프로젝트가 끝난 뒤 학생이 할 수 있어야 하는 것은?</label>
+      <div class="opts" id="goalopts"></div>
+      <textarea id="f_goal" placeholder="선택한 목표를 직접 고쳐 쓰세요." style="margin-top:9px"></textarea>
+      <div class="hint">AI가 쓴 문장을 한 군데라도 고치는 것이 이 단계의 목적입니다.</div>
+      <div class="btnrow"><button class="btn" onclick="finishStep2()">다음</button></div>
+    </div>
+  </section>
+
+  <section class="step locked" id="step3">
+    <div class="stephead"><div class="stepno">3</div>
+      <div class="steptitle">수행과제와 평가 증거</div><span class="tier adv">심화 신규</span>
+      <div class="stepnote">백워드 &#9313; 평가 증거</div></div>
+    <div class="body">
+      <div class="quest"><b>탐구질문&#9314;</b><span>내가 가르치는 단원을 학생이 해결해야 할 &lsquo;프로젝트&rsquo;로 바꾼다면?</span></div>
+
+      <label>핵심질문 &mdash; 답이 하나로 정해지지 않는 질문으로</label>
+      <div class="opts" id="qopts"></div>
+      <textarea id="f_question" placeholder="핵심질문" style="margin-top:9px"></textarea>
+
+      <label style="margin-top:20px">최종 수행과제</label>
+      <div class="opts" id="topts"></div>
+      <textarea id="f_task" placeholder="최종 수행과제" style="margin-top:9px"></textarea>
+
+      <div style="margin-top:14px">
+        <label>이 결과물을 실제로 보는 사람은? <span class="req">필수</span></label>
+        <input id="f_audience" placeholder="예) 우리 가족 / 옆 반 친구들 / 학교 도서관 이용자">
+        <div class="hint">교사만 보는 결과물은 수행과제가 아니라 과제 제출입니다.</div>
+      </div>
+
+      <div class="aibox" style="margin-top:20px">
+        <h4>수정 실습 &middot; 교사의 관점으로 다시 쓰기</h4>
+        <p>초안을 그대로 쓰지 않습니다. 아래 관점으로 AI에게 수정을 요청해보세요. (선택) &mdash; 받은 답은 위 &lsquo;최종 수행과제&rsquo; 칸에 직접 붙여넣으세요.</p>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn ghost sm" onclick="revise('real')">더 실제적인 과제로</button>
+          <button class="btn ghost sm" onclick="revise('level')">학생 수준에 맞게</button>
+          <button class="btn ghost sm" onclick="revise('cut')">실행 가능하게 줄이기</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <label>무엇을 보면 도달했다고 할 수 있을까요? <span class="req">2개 이상</span></label>
+        <div class="checks" id="evidchecks"></div>
+        <div class="hint">활동을 짜기 <strong>전에</strong> 증거부터 정합니다. 이것이 백워드 설계의 핵심입니다.</div>
+      </div>
+
+      <div class="btnrow"><button class="btn" onclick="finishStep3()">다음</button></div>
+    </div>
+  </section>
+
+  <section class="step locked" id="step4">
+    <div class="stephead"><div class="stepno">4</div>
+      <div class="steptitle">차시 활동과 AI 배치</div><span class="tier adv">일부 신규</span>
+      <div class="stepnote">백워드 &#9314; 학습 경험</div></div>
+    <div class="body">
+      <div class="note" id="phaseAnote">
+        <strong>먼저 학생 활동만 정합니다.</strong> AI 활용 열은 아직 열리지 않습니다.
+        어떤 도구를 쓸지 먼저 정하면 활동이 도구에 맞춰 끌려가기 때문입니다.
+      </div>
+
+      <div class="aibox" id="ai2box" style="display:none">
+        <h4>AI에게 초안 받아오기 &middot; 2회차</h4>
+        <p>확정한 활동을 기준으로 AI 활용 지점과 루브릭 초안을 받아옵니다.
+           <strong>&lsquo;학생이 직접 판단할 것&rsquo;은 요청하지 않습니다.</strong></p>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn amber" onclick="ask(2,'gemini')">Gemini로 물어보기</button>
+          <button class="btn amber" onclick="ask(2,'chatgpt')">ChatGPT로 물어보기</button>
+          <button class="btn ghost sm" onclick="copyPrompt(2)">프롬프트만 복사</button>
+          <button class="btn ghost sm" onclick="togglePaste(2)">답변 붙여넣기</button>
+        </div>
+        <div class="pastearea" id="paste2">
+          <textarea id="paste2_t" placeholder="AI 답변을 통째로 붙여넣으세요."></textarea>
+          <div class="btnrow" style="margin-top:9px"><button class="btn sm" onclick="parse2()">불러오기</button></div>
+        </div>
+      </div>
+
+      <div class="note" id="phaseBnote" style="display:none">
+        <strong>노란 칸은 AI가 채우지 않습니다.</strong>
+        각 차시에서 학생이 스스로 판단해야 하는 것을 직접 쓰세요. 모두 채워야 다음으로 넘어갑니다.<br>기초 5차시의 약안에는 없던 항목입니다.
+      </div>
+
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th style="width:44px">차시</th><th>학생 활동</th>
+            <th id="th_ai" class="lockedcol">AI 활용</th>
+            <th id="th_judge" class="lockedcol" style="width:27%">학생이 직접 판단할 것</th>
+          </tr></thead>
+          <tbody id="lessonrows"></tbody>
+        </table>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn" id="btnPhaseB" onclick="openPhaseB()">활동 확정 &mdash; AI 배치 열기</button>
+        <button class="btn" id="btnStep4" onclick="finishStep4()" style="display:none">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step locked" id="step5">
+    <div class="stephead"><div class="stepno">5</div>
+      <div class="steptitle">과정중심평가 루브릭</div><span class="tier adv">심화 신규</span>
+      <div class="stepnote">3~4개만 고르세요</div></div>
+    <div class="body">
+      <div class="quest"><b>탐구질문&#9315;</b><span>AI를 활용해 완성도 높은 결과물을 만든 학생의 학습은 무엇으로 확인할 수 있을까?</span></div>
+      <div class="note ok" id="evidrecall"></div>
+
+      <label>평가요소 &mdash; 실제로 수집 가능한 것만</label>
+      <div class="checks" id="elemchecks"></div>
+      <div class="hint">여덟 개를 다 보려고 하면 아무것도 관찰하지 못합니다.</div>
+
+      <div id="rubricwrap" style="margin-top:22px;display:none">
+        <label>3수준 루브릭 &mdash; 추상적 표현을 관찰 가능한 행동으로 고쳐 쓰세요</label>
+        <div style="overflow-x:auto">
+          <table><thead><tr><th style="width:19%">평가요소</th><th>3수준</th><th>2수준</th><th>1수준</th></tr></thead>
+          <tbody id="rubricrows"></tbody></table>
+        </div>
+      </div>
+      <div class="btnrow"><button class="btn" onclick="finishStep5()">설계도 완성</button></div>
+    </div>
+  </section>
+
+  <section class="step locked" id="step6">
+    <div class="stephead"><div class="stepno">6</div>
+      <div class="steptitle">나의 프로젝트 설계도</div><span class="tier adv">심화 신규</span></div>
+    <div class="body">
+      <div class="quest"><b>탐구질문&#9317;</b><span>내가 만든 프로젝트는 학생의 생각과 성장 과정이 보이는 수업인가?</span></div>
+      <div class="sheet" id="sheet"></div>
+
+      <div class="selfcheck">
+        <h3>최종 점검</h3>
+        <p>가장 보완이 필요한 항목 하나를 고르고, 수정 방향을 한 줄로 적어보세요.</p>
+        <div id="checkrows"></div>
+        <div class="fixbox" id="fixbox">
+          <label>수정 방향</label>
+          <textarea id="f_fix" placeholder="예) 수행과제를 보는 사람이 아직 막연하다. 학급 게시판 게시로 바꾸겠다."
+            oninput="S.fix=this.value;updateFixLine()"></textarea>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn" onclick="window.print()">인쇄 / PDF로 저장</button>
+        <button class="btn ghost" onclick="exportJSON()">파일로 내보내기</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const S = {
+  level:"",grade:"",subject:"",unit:"",lessonCount:4,
+  goal:"",question:"",task:"",audience:"",
+  evidence:[],lessons:[],elements:[],rubric:[],rubricFinal:[],
+  checkPick:"",fix:"", cand:{goals:[],questions:[],tasks:[]}
+};
+const ELEMENTS=["문제 이해","자료 탐색·검증","문제 해결","협업","수정·성찰","의사소통","AI 활용 판단","자기주도성"];
+const EVIDENCE=["최초 아이디어","자료 탐색 기록","AI 답변 검증 기록","협업 기록","중간 결과물","받은 피드백","수정 전후 결과물","자기성찰지"];
+const CHECKS=[
+  ["목표","프로젝트가 끝난 뒤 학생에게 무엇이 남는지 분명한가?"],
+  ["사고","AI가 대신하지 않고 학생이 직접 판단해야 하는 장면이 있는가?"],
+  ["증거","최종 결과물 외에 학생의 학습 과정을 확인할 증거가 남는가?"],
+  ["정렬","학습목표 · 수행과제 · 평가 · 활동이 서로 연결되어 있는가?"]
+];
+const STEPS=["수업 정보","학습목표","과제·증거","활동·AI","루브릭","설계도"];
+let cur=1, done=0, phaseB=false;
+
+function drawRail(){
+  document.getElementById("rail").innerHTML=STEPS.map(function(t,i){
+    var n=i+1,c=n<=done?"done":(n===cur?"active":"");
+    return '<div class="railitem '+c+'"><b>STEP '+n+'</b>'+t+'</div>';}).join("");
+  var bw={1:"",2:"bw1",3:"bw2",4:"bw3",5:"",6:""}[cur];
+  ["bw1","bw2","bw3"].forEach(function(id){
+    document.getElementById(id).classList.toggle("on",id===bw);});
+}
+var reached=1;
+function openStep(n){
+  cur=n; done=Math.max(done,n-1); reached=Math.max(reached,n);
+  for(var i=1;i<=6;i++){
+    document.getElementById("step"+i).className="step "+(i===n?"open":(i<=reached?"finished":"locked"));
+  }
+  drawRail();
+  document.getElementById("step"+n).scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function prompt1(){
+return "나는 "+S.level+" "+S.grade+" "+S.subject+"를 가르치는 교사야.\n"+
+"아래 단원을 "+S.lessonCount+"차시 융합 프로젝트로 설계하려고 해.\n\n"+
+"단원 / 성취기준: "+S.unit+"\n\n"+
+"백워드 설계에 따라 아래 세 가지의 후보를 각각 3개씩 제안해줘.\n"+
+"1. 학습목표: 프로젝트가 끝난 뒤 학생이 할 수 있어야 하는 것. 활동이 아니라 도달점으로 써줘.\n"+
+"2. 핵심질문: 답이 하나로 정해지지 않는 탐구질문.\n"+
+"3. 최종 수행과제: 실제 대상과 목적이 있는 과제. \"발표하기\"처럼 대상이 없는 과제는 제외.\n"+
+"   교육과정상 해당 학년이 배우지 않은 내용을 다른 학년에게 가르치는 설정은 넣지 마.\n\n"+
+"반드시 아래 JSON 형식으로만 답하고, 다른 설명은 붙이지 마.\n"+
+'{"goals":["","",""],"questions":["","",""],"tasks":["","",""]}';
+}
+function prompt2(){
+var acts=S.lessons.map(function(l){return l.no+"차시: "+l.activity;}).join("\n");
+return "아래는 내가 확정한 프로젝트의 차시별 학생 활동이야.\n\n"+
+"대상: "+S.level+" "+S.grade+" "+S.subject+" / "+S.unit+"\n"+
+"학습목표: "+S.goal+"\n핵심질문: "+S.question+"\n"+
+"최종 수행과제: "+S.task+" (보는 사람: "+S.audience+")\n"+
+"남길 평가 증거: "+S.evidence.join(", ")+"\n\n"+
+"[차시별 학생 활동]\n"+acts+"\n\n"+
+"두 가지를 해줘.\n"+
+"1. 각 차시의 활동에서 AI가 도울 수 있는 지점을 한 줄씩 써줘.\n"+
+"   - AI가 결론을 대신 내리거나 학생이 판단해야 할 것을 대신하는 활동은 넣지 마.\n"+
+"   - \"학생이 직접 판단할 것\"은 쓰지 마. 그건 교사가 채울 항목이야.\n"+
+"2. 이 프로젝트에 맞는 평가요소 3개와 각각의 3수준 루브릭을 써줘.\n"+
+"   각 수준은 교사가 실제로 관찰할 수 있는 학생 행동으로 표현해줘.\n\n"+
+"반드시 아래 JSON 형식으로만 답해.\n"+
+'{"ai":[{"no":1,"use":""}],"rubric":[{"element":"","l3":"","l2":"","l1":""}]}';
+}
+function getPrompt(n){return n===1?prompt1():prompt2();}
+function revisePrompt(kind){
+  var base="아래 수행과제를 수정해줘.\n\n대상: "+S.level+" "+S.grade+" "+S.subject+
+    "\n핵심질문: "+S.question+"\n현재 수행과제: "+S.task+"\n보는 사람: "+S.audience+"\n\n";
+  var m={
+    real:"단순 발표가 아닌, 실제적 대상과 목적이 있는 수행과제로 수정해줘. 결과물을 실제로 보는 사람이 누구인지 분명히 드러나야 해.",
+    level:"이 학년 학생이 실제로 해낼 수 있는 수준으로 조정해줘. 교육과정상 해당 학년이 배우지 않은 내용은 넣지 마.",
+    cut:"주어진 "+S.lessonCount+"차시 안에 수행 가능하도록 핵심 활동만 남겨줘. 욕심낸 부분을 덜어내줘."
+  };
+  return base+m[kind]+"\n\n수정한 수행과제 1개만 한 문단으로 답해줘.";
+}
+function revise(kind){
+  S.question=v("f_question");S.task=v("f_task");S.audience=v("f_audience");
+  if(!S.task){alert("먼저 수행과제를 입력해주세요.");return;}
+  var p=revisePrompt(kind);
+  if(navigator.clipboard) navigator.clipboard.writeText(p).catch(function(){});
+  window.open("https://chatgpt.com/?q="+encodeURIComponent(p),"_blank");
+}
+function copyPrompt(n){
+  var p=getPrompt(n);
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(p).then(function(){alert("프롬프트를 복사했습니다.");})
+      .catch(function(){window.prompt("아래를 복사하세요",p);});
+  } else window.prompt("아래를 복사하세요",p);
+}
+function ask(n,who){
+  var p=getPrompt(n);
+  if(navigator.clipboard) navigator.clipboard.writeText(p).catch(function(){});
+  togglePaste(n,true);
+  if(who==="chatgpt") window.open("https://chatgpt.com/?q="+encodeURIComponent(p),"_blank");
+  else{ window.open("https://gemini.google.com/app","_blank");
+    setTimeout(function(){alert("프롬프트를 복사했습니다. Gemini 입력창에 붙여넣으세요.");},400); }
+}
+function togglePaste(n,force){
+  var el=document.getElementById("paste"+n);
+  el.classList.toggle("show",force===true?true:!el.classList.contains("show"));
+}
+
+function grabJSON(raw){
+  var t=raw.replace(/```json|```/g,"").trim();
+  var s=t.indexOf("{"),e=t.lastIndexOf("}");
+  if(s<0||e<0)return null;
+  try{return JSON.parse(t.slice(s,e+1));}catch(err){return null;}
+}
+function parse1(){
+  var d=grabJSON(document.getElementById("paste1_t").value);
+  if(!d||!d.goals){alert("읽어내지 못했습니다. 아래 칸에 직접 입력해도 됩니다.");return;}
+  S.cand={goals:d.goals||[],questions:d.questions||[],tasks:d.tasks||[]};
+  renderCands(); togglePaste(1);
+}
+function parse2(){
+  var d=grabJSON(document.getElementById("paste2_t").value);
+  if(!d){alert("읽어내지 못했습니다. 표를 직접 채워도 됩니다.");return;}
+  if(d.ai) d.ai.forEach(function(a){
+    var l=S.lessons.filter(function(x){return x.no==a.no;})[0];
+    if(l) l.ai=a.use||"";});
+  if(d.rubric) S.rubric=d.rubric;
+  renderLessons(); togglePaste(2);
+  alert("불러왔습니다. AI 활용 칸을 확인·수정하고, 노란 칸은 직접 채워주세요.");
+}
+
+function h(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function renderCands(){
+  function mk(arr,box,input){
+    document.getElementById(box).innerHTML=arr.map(function(v,i){
+      return '<div class="opt" onclick="pick(\''+box+'\',this,\''+input+'\')">'+
+             '<span class="tag">제안 '+(i+1)+'</span>'+h(v)+'</div>';}).join("");
+  }
+  mk(S.cand.goals,"goalopts","f_goal");
+  mk(S.cand.questions,"qopts","f_question");
+  mk(S.cand.tasks,"topts","f_task");
+}
+function pick(box,el,input){
+  var list=document.querySelectorAll("#"+box+" .opt");
+  for(var i=0;i<list.length;i++) list[i].classList.remove("sel");
+  el.classList.add("sel");
+  document.getElementById(input).value=el.innerText.replace(/^제안 \d+\s*/,"").trim();
+}
+function renderEvid(){
+  document.getElementById("evidchecks").innerHTML=EVIDENCE.map(function(e){
+    var on=S.evidence.indexOf(e)>=0;
+    return '<label class="chk '+(on?"on":"")+'"><input type="checkbox" '+(on?"checked":"")+
+           ' onchange="toggleEvid(\''+e+'\',this)">'+e+'</label>';}).join("");
+}
+function toggleEvid(e,box){
+  if(box.checked)S.evidence.push(e);
+  else S.evidence=S.evidence.filter(function(x){return x!==e;});
+  renderEvid();
+}
+function renderLessons(){
+  if(!S.lessons.length){
+    S.lessons=[];
+    for(var i=0;i<S.lessonCount;i++) S.lessons.push({no:i+1,activity:"",ai:"",judge:""});
+  }
+  document.getElementById("lessonrows").innerHTML=S.lessons.map(function(l,i){
+    var right = phaseB
+      ? '<td><textarea oninput="S.lessons['+i+'].ai=this.value" placeholder="AI 활용">'+l.ai+'</textarea></td>'+
+        '<td><textarea oninput="S.lessons['+i+'].judge=this.value" placeholder="교사가 직접 작성">'+l.judge+'</textarea></td>'
+      : '<td class="lockcell">활동 확정 후 열림</td><td class="lockcell">활동 확정 후 열림</td>';
+    return '<tr><td class="no">'+l.no+'</td>'+
+      '<td><textarea oninput="S.lessons['+i+'].activity=this.value" placeholder="학생 활동">'+l.activity+'</textarea></td>'+
+      right+'</tr>';}).join("");
+}
+function openPhaseB(){
+  var bad=S.lessons.filter(function(l){return !l.activity.trim();});
+  if(bad.length){alert("학생 활동을 모두 채워야 AI 배치를 열 수 있습니다.");return;}
+  setPhaseB();
+  renderLessons();
+}
+function setPhaseB(){
+  phaseB=true;
+  document.getElementById("th_ai").className="";
+  document.getElementById("th_judge").className="key";
+  document.getElementById("ai2box").style.display="block";
+  document.getElementById("phaseAnote").style.display="none";
+  document.getElementById("phaseBnote").style.display="block";
+  document.getElementById("btnPhaseB").style.display="none";
+  document.getElementById("btnStep4").style.display="inline-block";
+}
+function norm(t){return String(t||"").replace(/[\s·ㆍ,\/]|및/g,"");}
+function allElements(){
+  var list=ELEMENTS.slice();
+  (S.rubric||[]).forEach(function(r){
+    if(r.element && !list.some(function(e){return norm(e)===norm(r.element);})) list.push(r.element);
+  });
+  return list;
+}
+function renderElements(){
+  var aiNames=(S.rubric||[]).map(function(r){return norm(r.element);});
+  document.getElementById("elemchecks").innerHTML=allElements().map(function(e){
+    var tag=aiNames.indexOf(norm(e))>=0?' <span style="font-size:10.5px;color:var(--amber);font-weight:800">AI 초안 있음</span>':'';
+    var on=S.elements.indexOf(e)>=0;
+    return '<label class="chk '+(on?"on":"")+'"><input type="checkbox" '+(on?"checked":"")+
+           ' onchange="toggleElem(\''+h(e).replace(/'/g,"")+'\',this)">'+h(e)+tag+'</label>';}).join("");
+  document.getElementById("evidrecall").innerHTML=
+    "STEP 3에서 고른 증거 &mdash; <strong>"+S.evidence.join(" / ")+
+    "</strong><br>이 증거로 확인할 수 있는 평가요소를 고르세요.";
+}
+function toggleElem(e,box){
+  if(box.checked){
+    if(S.elements.length>=4){box.checked=false;alert("최대 4개까지 선택할 수 있습니다.");return;}
+    S.elements.push(e);
+  } else S.elements=S.elements.filter(function(x){return x!==e;});
+  renderElements(); renderRubric();
+}
+function renderRubric(){
+  var w=document.getElementById("rubricwrap");
+  if(!S.elements.length){w.style.display="none";return;}
+  w.style.display="block";
+  var prev=S.rubricFinal||[];
+  S.rubricFinal=S.elements.map(function(el){
+    var kept=prev.filter(function(r){return r.element===el;})[0];
+    if(kept) return kept;
+    var f=(S.rubric||[]).filter(function(r){return norm(r.element)===norm(el);})[0];
+    return {element:el,l3:f?f.l3:"",l2:f?f.l2:"",l1:f?f.l1:""};
+  });
+  document.getElementById("rubricrows").innerHTML=S.rubricFinal.map(function(r,i){
+    return '<tr><td style="font-weight:700;color:var(--navy)">'+r.element+'</td>'+
+    '<td><textarea oninput="S.rubricFinal['+i+'].l3=this.value" placeholder="관찰 가능한 행동으로">'+h(r.l3)+'</textarea></td>'+
+    '<td><textarea oninput="S.rubricFinal['+i+'].l2=this.value">'+h(r.l2)+'</textarea></td>'+
+    '<td><textarea oninput="S.rubricFinal['+i+'].l1=this.value">'+h(r.l1)+'</textarea></td></tr>';}).join("");
+}
+function renderChecks(){
+  document.getElementById("checkrows").innerHTML=CHECKS.map(function(c){
+    return '<div class="scrow '+(S.checkPick===c[0]?"on":"")+'" onclick="pickCheck(\''+c[0]+'\')">'+
+           '<b>'+c[0]+'</b>'+c[1]+'</div>';}).join("");
+  document.getElementById("fixbox").classList.toggle("show",!!S.checkPick);
+}
+function pickCheck(k){S.checkPick=k;renderChecks();}
+
+function finishStep1(){
+  S.level=v("f_level");S.grade=v("f_grade");S.subject=v("f_subject");S.unit=v("f_unit");
+  S.lessonCount=parseInt(v("f_lessons"));
+  if(!S.level||!S.grade||!S.subject||!S.unit){alert("모든 항목을 채워주세요.");return;}
+  if(S.lessons.length && S.lessons.length!==S.lessonCount){
+    while(S.lessons.length<S.lessonCount) S.lessons.push({no:S.lessons.length+1,activity:"",ai:"",judge:""});
+    if(S.lessons.length>S.lessonCount){
+      var cut=S.lessons.slice(S.lessonCount).some(function(l){return l.activity||l.ai||l.judge;});
+      if(cut && !confirm("차시 수를 줄이면 뒤쪽 차시에 쓴 내용이 지워집니다. 계속할까요?")){S.lessonCount=S.lessons.length;document.getElementById("f_lessons").value=S.lessonCount+"차시";return;}
+      S.lessons=S.lessons.slice(0,S.lessonCount);
+    }
+    renderLessons();
+  }
+  openStep(2);
+}
+function finishStep2(){
+  S.goal=v("f_goal");
+  if(S.goal.length<10){alert("학습목표를 입력하거나 고쳐 써주세요.");return;}
+  renderEvid(); openStep(3);
+}
+function finishStep3(){
+  S.question=v("f_question");S.task=v("f_task");S.audience=v("f_audience");
+  if(!S.question||!S.task){alert("핵심질문과 수행과제를 입력해주세요.");return;}
+  if(!S.audience){alert("이 결과물을 실제로 보는 사람을 적어주세요. 건너뛸 수 없습니다.");return;}
+  if(S.evidence.length<2){alert("무엇을 보면 도달했다고 할 수 있을지 2개 이상 골라주세요.\n\n활동을 짜기 전에 증거부터 정하는 것이 백워드 설계입니다.");return;}
+  renderLessons(); openStep(4);
+}
+function finishStep4(){
+  var empty=S.lessons.filter(function(l){return !l.judge.trim();});
+  if(empty.length){
+    alert("‘학생이 직접 판단할 것’이 비어 있습니다. ("+
+      empty.map(function(l){return l.no+"차시";}).join(", ")+
+      ")\n\n이 칸은 AI가 채우지 않습니다. 교사가 직접 써야 합니다.");return;
+  }
+  renderElements(); renderRubric(); openStep(5);
+}
+function finishStep5(){
+  if(S.elements.length<3){alert("평가요소를 3개 이상 선택해주세요.");return;}
+  buildSheet(); renderChecks(); openStep(6);
+}
+function v(id){return document.getElementById(id).value.trim();}
+
+function buildSheet(){
+  var flow=S.lessons.map(function(l){
+    return '<span>'+l.activity.split(/[,.\n]/)[0].slice(0,14)+'</span>';
+  }).join('<span style="color:#A6B0D0;background:none;padding:0 2px">&rarr;</span>');
+  var aiTxt=S.lessons.map(function(l){return l.ai;}).filter(Boolean).join(" / ")||"—";
+  document.getElementById("sheet").innerHTML=
+    '<h2>'+S.subject+' 프로젝트 설계도</h2>'+
+    '<div class="meta">'+S.level+' '+h(S.grade)+' &middot; '+h(S.unit)+' &middot; 총 '+S.lessonCount+'차시</div>'+
+    '<div class="blk"><h3>학습목표</h3><p>'+h(S.goal)+'</p></div>'+
+    '<div class="blk"><h3>핵심질문</h3><p>'+h(S.question)+'</p></div>'+
+    '<div class="blk"><h3>최종 수행과제</h3><p>'+h(S.task)+'<br>'+
+      '<span style="font-size:13px;color:var(--muted)">이 결과물을 보는 사람: '+h(S.audience)+'</span></p></div>'+
+    '<div class="blk"><h3>평가 증거</h3><p style="font-size:13.5px">'+S.evidence.join(" / ")+'</p></div>'+
+    '<div class="blk"><h3>프로젝트 흐름</h3><div class="flow">'+flow+'</div></div>'+
+    '<div class="blk"><h3>AI 활용</h3><p style="font-size:13.5px">'+aiTxt+'</p></div>'+
+    '<div class="blk"><h3>학생이 직접 판단하는 것</h3>'+
+      '<p style="font-size:13.5px;color:var(--navy);font-weight:600">'+
+      S.lessons.map(function(l){return l.judge;}).join(" / ")+'</p></div>'+
+    '<div class="blk"><h3>과정중심평가 루브릭</h3>'+rubricTable()+'</div>'+
+    '<div id="fixline"></div>'+
+    '<div class="closing">여러분이 방금 만든 것은 수업안이 아니라 프로젝트의 설계도입니다.</div>';
+}
+
+function rubricTable(){
+  var rows=(S.rubricFinal||[]).map(function(r){
+    return '<tr><td style="font-weight:700;color:var(--navy)">'+h(r.element)+'</td><td>'+h(r.l3)+'</td><td>'+h(r.l2)+'</td><td>'+h(r.l1)+'</td></tr>';}).join("");
+  return '<table style="font-size:12.5px"><thead><tr><th style="width:18%">평가요소</th><th>3수준</th><th>2수준</th><th>1수준</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function updateFixLine(){
+  var el=document.getElementById("fixline"); if(!el) return;
+  el.innerHTML = (S.checkPick && S.fix) ? '<div class="blk"><h3>최종 점검 · 보완할 점 ('+h(S.checkPick)+')</h3><p style="font-size:13.5px">'+h(S.fix)+'</p></div>' : '';
+}
+function exportJSON(){
+  var b=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="프로젝트설계도_"+(S.subject||"미정")+".json";a.click();
+}
+function importJSON(ev){
+  var f=ev.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{ var d=JSON.parse(e.target.result);
+      for(var k in d) S[k]=d[k];
+      if(S.lessons.some(function(l){return l.ai||l.judge;})) setPhaseB();
+      fillForm(); alert("불러왔습니다."); }
+    catch(err){alert("파일을 읽지 못했습니다.");}};
+  r.readAsText(f);
+}
+function fillForm(){
+  var map={level:"f_level",grade:"f_grade",subject:"f_subject",unit:"f_unit",
+    goal:"f_goal",question:"f_question",task:"f_task",audience:"f_audience"};
+  for(var k in map){var el=document.getElementById(map[k]); if(el) el.value=S[k]||"";}
+  document.getElementById("f_lessons").value=S.lessonCount+"차시";
+  renderCands();renderEvid();renderLessons();renderElements();renderRubric();
+  openStep(1);
+}
+function resetAll(){if(confirm("입력한 내용이 모두 지워집니다. 계속할까요?")){S.subject="";S.goal="";S.task="";location.reload();}}
+
+function loadSample(){
+  var d={
+    level:"초등학교",grade:"4학년",subject:"과학",lessonCount:5,
+    unit:"2학기 1단원 밤하늘 관찰 / [4과13-01] 달의 모양과 표면, 달의 위상 변화를 관찰하여 밤하늘 관찰에 흥미를 가질 수 있다.",
+    goal:"한 달 동안 달의 모양 변화를 관찰하고, 그 규칙성을 다른 사람이 따라 관찰할 수 있도록 설명할 수 있다.",
+    question:"달과 별은 왜 매일 다르게 보일까? 우리 가족이 함께 관찰하려면 무엇을 알려주어야 할까?",
+    task:"우리 가족이 한 달 동안 함께 쓸 「우리 가족 밤하늘 관찰 안내서」 만들기",
+    audience:"우리 가족",
+    evidence:["최초 아이디어","중간 결과물","받은 피드백","수정 전후 결과물"],
+    lessons:[
+      {no:1,activity:"달 관찰 경험 나누기, 궁금한 점 모으기",ai:"질문 아이디어 확장",judge:"어떤 질문을 프로젝트로 삼을지 선택"},
+      {no:2,activity:"한 달 관찰 계획 세우기, 기록장 양식 만들기",ai:"기록 항목 예시 제안",judge:"우리 가족이 실제로 지킬 수 있는 계획인지 판단"},
+      {no:3,activity:"관찰 결과 모아 모양 변화 규칙 찾기",ai:"관찰 데이터 정리·비교",judge:"규칙이 실제 관찰과 맞는지 확인"},
+      {no:4,activity:"북극성과 주변 별자리 찾는 법 정리",ai:"설명 문장 다듬기",judge:"가족이 이해할 수 있는 설명인지 판단"},
+      {no:5,activity:"안내서 완성, 가족 피드백 받아 수정",ai:"초안 피드백",judge:"어떤 피드백을 반영할지 결정"}
+    ],
+    elements:["문제 이해","자료 탐색·검증","수정·성찰"],
+    rubric:[
+      {element:"문제 이해",l3:"관찰할 대상과 기간을 스스로 정하고 이유를 설명함",l2:"안내에 따라 관찰 대상을 정함",l1:"무엇을 관찰할지 정하지 못함"},
+      {element:"자료 탐색·검증",l3:"관찰 결과와 자료가 다를 때 다시 확인해 기록함",l2:"자료의 출처를 확인함",l1:"자료를 그대로 옮겨 씀"},
+      {element:"수정·성찰",l3:"가족 피드백 중 반영할 것을 골라 이유와 함께 고침",l2:"피드백을 받아 일부를 고침",l1:"수정하지 않음"}
+    ]
+  };
+  for(var k in d) S[k]=d[k];
+  setPhaseB();
+  fillForm();
+  alert("초4 과학 「밤하늘 관찰」 예시를 불러왔습니다. STEP 1부터 확인하며 넘어가세요.");
+}
+window.addEventListener("beforeunload",function(e){
+  if(S.subject||S.goal||S.task){e.preventDefault();e.returnValue="";}
+});
+drawRail();
+</script>
+</body>
+</html>
